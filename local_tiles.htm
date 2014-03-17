@@ -1,0 +1,100 @@
+<html>
+<head>
+    <title>OSM Local Tiles</title>
+    <link rel="stylesheet" href="style.css" type="text/css" />
+    <script src="OpenLayers.js"></script>
+    <script src="OpenStreetMap.js"></script>
+ 
+    <script type="text/javascript">
+
+		var funkceKlik = function (evn) {
+			alert(this.id);
+
+			OpenLayers.Event.stop(evn);
+
+			// skrytĂ­ znaÄŤky [1] z vrstvy "vrstvaZnacek"
+			//    vrstvaZnacek.markers[1].display(false);
+		};
+
+	////////////////////////////////////////////////////////////////////////////////
+	function init(){
+
+		var mapa, vrstvaMapy;
+
+		OpenLayers.ProxyHost = "/proxy/?url=";
+
+		// vytvoĹ™enĂ­ novĂ©ho objeku "mapa", kterĂ˝ se vloĹľĂ­ do "divMapa" definovanĂ˝ v HTML-BODY
+		mapa = new OpenLayers.Map('divMapa');
+		// vytvoĹ™enĂ­ novĂ© vrstvy mapy "vrstvaMapy"
+		vrstvaMapy = new OpenLayers.Layer.WMS("Popis vrstvy - OpenLayers WMS",
+			"http://vmap0.tiles.osgeo.org/wms/vmap0", {
+			layers: 'basic'
+		});
+		// pĹ™idĂˇnĂ­ vrstvy "vrstvaMapy" do mapy "mapa"
+		mapa.addLayer(vrstvaMapy);
+
+
+		// vytvoĹ™enĂ­ novĂ© vrstvy znaÄŤek
+		var vrstvaZnacek = new OpenLayers.Layer.Markers("Popis vrsty znaÄŤek");
+		// pĹ™idĂˇnĂ­ vrstvy znaÄŤek "vrstvaZnacek" do mapy "mapa" 
+		mapa.addLayer(vrstvaZnacek);
+
+		// definovĂˇnĂ­ rozmÄ›nĹŻ ikony a jejĂ­ho ofsetu (vztaĹľnĂ©ho bodu)
+		var ikonaRozmery = new OpenLayers.Size(21, 25);
+		var ikonaOffset = new OpenLayers.Pixel(-(ikonaRozmery.w / 2), -ikonaRozmery.h);
+		// definovĂˇnĂ­ ikony "ikonaA" dle parametrĹŻ zadanĂ˝ch vĂ˝Ĺˇe a odkazu na soubor s obrĂˇzkem ikony
+		var ikonaA = new OpenLayers.Icon('http://www.openlayers.org/dev/img/marker.png', ikonaRozmery, ikonaOffset);
+
+		// pĹ™idĂˇnĂ­ znaÄŤky do vrstvy "vrstvaZnacek" na pozici 0,0 , ikona bude mĂ­t styl definovanĂ˝ "ikonaA"
+		vrstvaZnacek.addMarker(new OpenLayers.Marker(new OpenLayers.LonLat(0, 0), ikonaA));
+
+
+		// definovĂˇnĂ­ stylu ikony "ikonaB" odvozenĂ­m od "ikonaA"
+		var ikonaB = ikonaA.clone();
+
+		// pĹ™idĂˇnĂ­ znaÄŤky do vrstvy "vrstvaZnacek" na pozici 0,45 , ikona bude mĂ­t styl definovanĂ˝ "ikonaB" - v tuto chvĂ­li totoĹľnĂ˝ s "ikonaA" zmÄ›nÄ›n mĹŻĹľe bĂ˝t nĂ­Ĺľe
+		vrstvaZnacek.addMarker(new OpenLayers.Marker(new OpenLayers.LonLat(0, 45), ikonaB));
+
+		// pĹ™idĂˇnĂ­ znaÄŤky do vrstvy "vrstvaZnacek" na pozici 0,0 , ikona bude mĂ­t styl definovanĂ˝ odvozenĂ­m od "ikonaA"
+		marker = new OpenLayers.Marker(new OpenLayers.LonLat(14.406115, 50.09288), ikonaA.clone());
+		// nastavenĂ­ vlastnostnĂ­ znaÄŤky - nastavuje se konktĂ©rnĂ­ znaÄŤka - nebude mĂ­t zpÄ›tnÄ› vliv na styl "ikonaA"
+		marker.setOpacity(1);
+		marker.id = "moje__id";
+		// pĹ™iĹ™azenĂ­ odchycenĂ­ funkce "mousedown" tohoto konkrĂ©tnĂ­ho bodu - volĂˇnĂ­ funkce "funkceKlik" kam je pĹ™e objekt "this" pĹ™edĂˇn konkrĂ©tnĂ­ marker
+		marker.events.register('mousedown', marker, funkceKlik);
+		// pĹ™idĂˇnĂ­ znaÄŤky do vrstvy "vrstvaZnacek" - vlastnosti znaÄŤky jsou nastavovĂˇny jiĹľ vĂ˝Ĺˇe - do objektu "marker"
+		vrstvaZnacek.addMarker(marker);
+
+		// pĹ™idĂˇnĂ­ ovlĂˇdacĂ­ch prvkĹŻ mapy - pĹ™pĂ­naÄŤe vrstev
+		mapa.addControl(new OpenLayers.Control.LayerSwitcher());
+		mapa.zoomToMaxExtent();
+
+
+		//Pozice StĹ™edu mapy - zde pro jednoduchost nastavena pĹ™Ă­mo
+		mapa.setCenter(new OpenLayers.LonLat(14, 50), 6);
+		//aternativnĂ­ zadĂˇnĂ­
+		mapa.setCenter([14, 50], 6);
+
+		// pozdÄ›jĹˇĂ­ nastavenĂ­ vlastnostĂ­ ikony "ikonaB" - zmÄ›nĂ­ prĹŻhlednost
+		ikonaB.setOpacity(0.5);
+
+	}
+	</script>
+  </head>
+  <body onload="init()"> <!-- body.onload is called once the page is loaded (call the 'init' function) -->
+	<h1 id="title">Markers Layer Example</h1>
+
+	<div id="tags">Marker, event, mousedown, popup, inco</div>
+	<div id="shortdesc">Show markers layer with different markers</div>
+	<div id="divMapa" class="smallmap" style="width:400px; height:300px"></div>
+	<div id="docs">
+		<p>This is an example of an OpenLayers.Layers.Markers layer that shows some examples of adding markers. Also demonstrated is registering a mousedown effect on a marker.</p>
+	</div>
+  </body>
+ 
+ 
+
+
+</html>
+
+
